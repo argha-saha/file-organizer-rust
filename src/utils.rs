@@ -1,8 +1,15 @@
+use std::collections::HashMap;
+use std::fs;
 use std::path::Path;
 
 /// Determines the folder name based on the file extension
-pub fn get_extension_folder(path: &Path) -> Option<String> {
+pub fn get_extension_folder(path: &Path, config: &HashMap<String, String>) -> Option<String> {
     let ext = path.extension()?.to_str()?.to_lowercase();
+
+    // Check the config file
+    if let Some(folder) = config.get(&ext) {
+        return Some(folder.clone());
+    }
 
     let folder = match ext.as_str() {
         "pdf" => "PDFs",
@@ -21,4 +28,10 @@ pub fn get_extension_folder(path: &Path) -> Option<String> {
     };
 
     Some(folder.to_string())
+}
+
+/// Load config from a TOML file
+pub fn load_config(path: &str) -> HashMap<String, String> {
+    let content = fs::read_to_string(path).unwrap_or_default();
+    toml::from_str(&content).unwrap_or_default()
 }

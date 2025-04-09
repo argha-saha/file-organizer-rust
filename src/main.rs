@@ -10,9 +10,11 @@ use clap::Parser;
 struct Args {
     /// Path to Organize
     path: String,
+
     /// Preview (files won't move)
     #[arg(long)]
     preview: bool,
+
     /// Undo organization
     #[arg(long)]
     undo: bool

@@ -1,4 +1,4 @@
-use crate::utils::get_extension_folder;
+use crate::utils::{get_extension_folder, load_config};
 use std::ffi::OsStr;
 use std::fs::{self};
 use std::io::{BufRead, BufReader, Write};
@@ -6,6 +6,7 @@ use std::path::Path;
 
 /// Organize files by extension
 pub fn organize(path: &str, preview: bool) -> Result<(), Box<dyn std::error::Error>> {
+    let config = load_config("config.toml");
     let entries = fs::read_dir(path)?;
 
     for entry in entries {
@@ -13,7 +14,7 @@ pub fn organize(path: &str, preview: bool) -> Result<(), Box<dyn std::error::Err
         let entry_path = entry.path();
 
         if entry_path.is_file() {
-            if let Some(ext_folder) = get_extension_folder(&entry_path) {
+            if let Some(ext_folder) = get_extension_folder(&entry_path, &config) {
                 let move_dir = Path::new(entry_path.as_path()).with_file_name(&ext_folder);
                 let move_path = move_dir.join(entry_path.file_name().unwrap());
 
