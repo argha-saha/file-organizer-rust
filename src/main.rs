@@ -1,6 +1,7 @@
 mod organizer;
 mod utils;
 
+use std::path::Path;
 use clap::Parser;
 
 /// File Organizer
@@ -19,5 +20,10 @@ fn main() {
 
     if let Err(e) = organizer::organize(&args.path, args.preview) {
         eprintln!("Error: {}", e);
+    } else if !args.preview {
+        // Organize the files when preview is disabled
+        if let Err(e) = organizer::remove_empty_directories(Path::new(&args.path)) {
+            eprintln!("Error: {}", e);
+        }
     }
 }
