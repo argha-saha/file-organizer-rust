@@ -17,7 +17,11 @@ struct Args {
 
     /// Undo organization
     #[arg(long)]
-    undo: bool
+    undo: bool,
+
+    /// Only follow rules in the configuration file
+    #[arg(long)]
+    config_only: bool
 }
 
 fn main() {
@@ -31,7 +35,7 @@ fn main() {
         return;
     }
 
-    if let Err(e) = organizer::organize(&args.path, args.preview) {
+    if let Err(e) = organizer::organize(&args.path, args.preview, args.config_only) {
         eprintln!("Error: {}", e);
     } else if !args.preview {
         // Organize the files when preview is disabled

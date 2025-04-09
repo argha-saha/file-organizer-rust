@@ -5,7 +5,7 @@ use std::io::{BufRead, BufReader, Write};
 use std::path::Path;
 
 /// Organize files by extension
-pub fn organize(path: &str, preview: bool) -> Result<(), Box<dyn std::error::Error>> {
+pub fn organize(path: &str, preview: bool, config_only: bool) -> Result<(), Box<dyn std::error::Error>> {
     let config = load_config("config.toml");
     let entries = fs::read_dir(path)?;
 
@@ -14,7 +14,7 @@ pub fn organize(path: &str, preview: bool) -> Result<(), Box<dyn std::error::Err
         let entry_path = entry.path();
 
         if entry_path.is_file() {
-            if let Some(ext_folder) = get_extension_folder(&entry_path, &config) {
+            if let Some(ext_folder) = get_extension_folder(&entry_path, &config, config_only) {
                 let move_dir = Path::new(entry_path.as_path()).with_file_name(&ext_folder);
                 let move_path = move_dir.join(entry_path.file_name().unwrap());
 
