@@ -1,13 +1,23 @@
 use crate::utils::{get_extension_folder, load_config};
+use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::fs::{self};
 use std::io::{BufRead, BufReader, Write};
 use std::path::Path;
 
 /// Organize files by extension
-pub fn organize(path: &str, preview: bool, config_only: bool) -> Result<(), Box<dyn std::error::Error>> {
+pub fn organize(
+    path: &str,
+    preview: bool,
+    config_only: bool,
+    report: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
     let config = load_config("config.toml");
     let entries = fs::read_dir(path)?;
+
+    // Data for report
+    let mut counts: HashMap<String, usize> = HashMap::new();
+    let mut total: i32 = 0;
 
     for entry in entries {
         let entry = entry?;
@@ -15,6 +25,19 @@ pub fn organize(path: &str, preview: bool, config_only: bool) -> Result<(), Box<
 
         if entry_path.is_file() {
             if let Some(ext_folder) = get_extension_folder(&entry_path, &config, config_only) {
+                // If folder exists, increase the count by 1
+                // Otherwise set the count to 0
+                if report {
+                    if let Some(count) = counts.get_mut(&ext_folder) {
+                        *count += 1;
+                    } else {
+                        counts.insert(ext_folder.clone(), 1);
+                    }
+
+                    total += 1;
+                    continue;
+                }
+
                 let move_dir = Path::new(entry_path.as_path()).with_file_name(&ext_folder);
                 let move_path = move_dir.join(entry_path.file_name().unwrap());
 
@@ -35,9 +58,23 @@ pub fn organize(path: &str, preview: bool, config_only: bool) -> Result<(), Box<
                         .create(true)
                         .open("undo.log")?;
 
-                    writeln!(log_file, "{} -> {}", move_path.display(), entry_path.display())?;
+                    writeln!(
+                        log_file,
+                        "{} -> {}",
+                        move_path.display(),
+                        entry_path.display()
+                    )?;
                 }
             }
+        }
+    }
+
+    if report {
+        println!("PREVIEW REPORT:");
+        println!("Total Files to Organize: {}", total);
+
+        for (folder, count) in &counts {
+            println!(" - {}: {}", folder, count);
         }
     }
 
@@ -95,7 +132,12 @@ pub fn undo_organization() -> Result<(), Box<dyn std::error::Error>> {
                 fs::create_dir_all(path_to.parent().unwrap())?;
                 fs::rename(path_from, path_to)?;
 
-                println!("{} {} -> {}", "Undo:", path_from.display(), path_to.display());
+                println!(
+                    "{} {} -> {}",
+                    "Undo:",
+                    path_from.display(),
+                    path_to.display()
+                );
             }
         }
     }

@@ -3,7 +3,11 @@ use std::fs;
 use std::path::Path;
 
 /// Determines the folder name based on the file extension
-pub fn get_extension_folder(path: &Path, config: &HashMap<String, String>, config_only: bool) -> Option<String> {
+pub fn get_extension_folder(
+    path: &Path,
+    config: &HashMap<String, String>,
+    config_only: bool,
+) -> Option<String> {
     let ext = path.extension()?.to_str()?.to_lowercase();
 
     // Check the config file
@@ -28,7 +32,7 @@ pub fn get_extension_folder(path: &Path, config: &HashMap<String, String>, confi
         "csv" | "json" | "xml" => "Data Documents",
         "exe" | "msi" => "Executables",
         "bin" => "Binaries",
-        _ => "Misc"
+        _ => "Misc",
     };
 
     Some(folder.to_string())

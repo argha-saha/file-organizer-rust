@@ -1,8 +1,8 @@
 mod organizer;
 mod utils;
 
-use std::path::Path;
 use clap::Parser;
+use std::path::Path;
 
 /// File Organizer
 #[derive(Parser, Debug)]
@@ -21,7 +21,11 @@ struct Args {
 
     /// Only follow rules in the configuration file
     #[arg(long)]
-    config_only: bool
+    config_only: bool,
+
+    /// Display the number of files that would be moved and files per folder
+    #[arg(long)]
+    report: bool,
 }
 
 fn main() {
@@ -35,7 +39,7 @@ fn main() {
         return;
     }
 
-    if let Err(e) = organizer::organize(&args.path, args.preview, args.config_only) {
+    if let Err(e) = organizer::organize(&args.path, args.preview, args.config_only, args.report) {
         eprintln!("Error: {}", e);
     } else if !args.preview {
         // Organize the files when preview is disabled
