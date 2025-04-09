@@ -11,12 +11,23 @@ struct Args {
     /// Path to Organize
     path: String,
     /// Preview (files won't move)
-    #[arg(short, long)]
-    preview: bool
+    #[arg(long)]
+    preview: bool,
+    /// Undo organization
+    #[arg(long)]
+    undo: bool
 }
 
 fn main() {
     let args = Args::parse();
+
+    if args.undo {
+        if let Err(e) = organizer::undo_organization() {
+            eprintln!("Error: {}", e);
+        }
+
+        return;
+    }
 
     if let Err(e) = organizer::organize(&args.path, args.preview) {
         eprintln!("Error: {}", e);

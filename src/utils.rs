@@ -1,5 +1,6 @@
 use std::path::Path;
 
+/// Determines the folder name based on the file extension
 pub fn get_extension_folder(path: &Path) -> Option<String> {
     let ext = path.extension()?.to_str()?.to_lowercase();
 
